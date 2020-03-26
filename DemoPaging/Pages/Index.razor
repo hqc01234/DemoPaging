@@ -1,0 +1,20 @@
+﻿@page "/"
+
+@using DemoPaging.DBContext
+@using DemoPaging.Entities
+@using Microsoft.EntityFrameworkCore
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+@code  {
+
+    [Inject]
+    protected DemoDbContext DbContext { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
+}
