@@ -20,6 +20,11 @@ namespace DemoPaging.Migrations
                 {
                     table.PrimaryKey("PK_Items", x => x.Id);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Items_CreateDate",
+                table: "Items",
+                column: "CreateDate");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

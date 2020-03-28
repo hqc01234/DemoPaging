@@ -36,6 +36,8 @@ namespace DemoPaging.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreateDate");
+
                     b.ToTable("Items");
                 });
 #pragma warning restore 612, 618

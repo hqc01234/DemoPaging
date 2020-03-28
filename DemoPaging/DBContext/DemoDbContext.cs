@@ -10,5 +10,10 @@ namespace DemoPaging.DBContext
         public DemoDbContext(DbContextOptions options) : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Item>().HasIndex(x => x.CreateDate);
+        }
     }
 }

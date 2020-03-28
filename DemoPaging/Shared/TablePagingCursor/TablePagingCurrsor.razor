@@ -1,0 +1,146 @@
+﻿@namespace DemoPaging.Shared
+
+<div class="position-relative">
+    @if (Loading)
+    {
+        <div class="spinner-border text-primary position-absolute" role="status" style="top: 50%; left: 50%">
+        </div>
+    }
+
+    <table class="table table-hover @(Loading ? "bg-light" : null)">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Data.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="2">No data found.</td>
+                </tr>
+            }
+
+            @foreach (var item in Data.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.CreateDate.ToString("d/MMM/yyyy hh:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (PreviousPage == null || Loading)
+    {
+        <button class="btn btn-success mr-1" disabled> Previous </button>
+    }
+    else
+    {
+        <button class="btn btn-success mr-1" @onclick="@(() => OnPageChange("previous"))">Previous</button>
+    }
+
+    @if (NextPage == null || Loading)
+    {
+        <button class="btn btn-success mx-1" disabled>Next</button>
+    }
+    else
+    {
+        <button class="btn btn-success mx-1" @onclick="@(() => OnPageChange("next"))">Next</button>
+    }
+
+    @if (Loading)
+    {
+        <button class="btn btn-success mx-1" disabled> Reset cursor </button>
+        <button class="btn btn-warning mx-1" disabled> Refresh </button>
+        <button class="btn btn-danger mx-1" disabled> Delete </button>
+    }
+    else
+    {
+        <button class="btn btn-primary ml-1" @onclick="@(() => OnPageChange("reset"))">Reset cursor</button>
+        <button class="btn btn-warning ml-1" @onclick="@(() => OnPageChange("refresh"))">Refresh</button>
+
+        @if (PreviousPage != null)
+        {
+            <button class="btn btn-danger ml-1" @onclick="@(() => OnDelete(_pagingCursorArgs))">Delete</button>
+        }
+        else
+        {
+            <button class="btn btn-danger mx-1" disabled> Delete </button>
+        }
+    }
+
+    <span class="font-weight-bold text-secondary ml-2">Total items: @Data.Total.ToString("N0")</span>
+</div>
+
+<p class="text-secondary mt-2">@ExecTime</p>
+
+<p class="text-secondary mt-2">Next page: @Data.NextPage</p>
+
+<p class="text-secondary mt-2">Previous page: @Data.PreviousPage</p>
+
+<p class="text-secondary mt-2">Last paging request: @JsonSerializer.Serialize(_pagingCursorArgs ?? new PagingCursorArgs())</p>
+
+@code {
+    [Parameter]
+    public PagingCursorData Data { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public string ExecTime { get; set; }
+
+    [Parameter]
+    public long? NextPage { get; set; }
+
+    [Parameter]
+    public long? PreviousPage { get; set; }
+
+    [Parameter]
+    public Func<PagingCursorArgs, Task> OnArgsChange { get; set; }
+
+    [Parameter]
+    public Func<PagingCursorArgs, Task> OnDelete { get; set; }
+
+    private long? _currentPage { get; set; }
+    private int _pageSize { get; set; } = 10;
+    private PagingCursorArgs _pagingCursorArgs { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        return OnPageChange("first");
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task OnPageChange(string btnType)
+    {
+        _currentPage = btnType switch
+        {
+            "next" => NextPage,
+            "reset" => null,
+            "refresh" => _currentPage,
+            _ => PreviousPage
+        };
+
+        _pagingCursorArgs = new PagingCursorArgs
+        {
+            PageSize = _pageSize,
+            PageCursor = _currentPage
+        };
+
+        return OnArgsChange(_pagingCursorArgs);
+    }
+
+
+
+    public Task OnDeleteBtnClick(PagingCursorArgs args)
+    {
+        return OnDelete(args);
+    }
+}

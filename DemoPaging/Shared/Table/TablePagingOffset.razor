@@ -1,0 +1,126 @@
+﻿@namespace DemoPaging.Shared
+
+<div class="position-relative">
+    @if (Loading)
+    {
+        <div class="spinner-border text-primary position-absolute" role="status" style="top: 50%; left: 50%">
+        </div>
+    }
+
+    <table class="table table-hover @(Loading ? "bg-light" : null)">
+        <thead>
+            <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Data.Items.Count == 0)
+            {
+                <tr>
+                    <td colspan="2">No data found.</td>
+                </tr>
+            }
+
+            @foreach (var item in Data.Items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.CreateDate.ToString("d/MMM/yyyy hh:mm:ss")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (_pageIndex == 0 || Loading || DisableBtn)
+    {
+        <button class="btn btn-primary mr-1" disabled>First Page</button>
+        <button class="btn btn-success mx-1" disabled> Previous </button>
+    }
+    else
+    {
+        <button class="btn btn-primary mr-1" @onclick="@(() => OnPageChange("first"))">First Page</button>
+        <button class="btn btn-success mx-1" @onclick="@(() => OnPageChange("previous"))">Previous</button>
+    }
+
+    @if (_pageIndex == Data.Total / _pageSize - 1 || Loading || DisableBtn)
+    {
+        <button class="btn btn-success mx-1" disabled>Next</button>
+        <button class="btn btn-primary ml-1" disabled>Last Page</button>
+    }
+    else
+    {
+        <button class="btn btn-success mx-1" @onclick="@(() => OnPageChange("next"))">Next</button>
+        <button class="btn btn-primary ml-1" @onclick="@(() => OnPageChange("last"))">Last Page</button>
+    }
+
+    @if (Loading)
+    {
+        <button class="btn btn-warning mx-1" disabled> Refresh </button>
+    }
+    else
+    {
+        <button class="btn btn-warning ml-1" @onclick="@(() => OnPageChange("refresh"))">Refresh</button>
+    }
+
+    <span class="font-weight-bold text-secondary ml-2">Page: @((_pageIndex + 1).ToString("N0"))</span>
+    <span class="font-weight-bold text-secondary ml-2">Total items: @Data.Total.ToString("N0")</span>
+</div>
+
+<p class="text-secondary mt-2">@ExecTime</p>
+
+@code {
+    [Parameter]
+    public PagingOffsetData Data { get; set; }
+
+    [Parameter]
+    public bool Loading { get; set; }
+
+    [Parameter]
+    public string ExecTime { get; set; }
+
+    [Parameter]
+    public int InitPage { get; set; }
+
+    [Parameter]
+    public bool DisableBtn { get; set; }
+
+    [Parameter]
+    public Func<PagingOffsetArgs, Task> OnArgsChange { get; set; }
+
+    private int _pageIndex { get; set; } = 0;
+    private int _pageSize { get; set; } = 10;
+    private bool _firstRender { get; set; } = true;
+
+    protected override Task OnInitializedAsync()
+    {
+        return OnPageChange("first");
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        return InvokeAsync(StateHasChanged);
+    }
+
+    public Task OnPageChange(string btnType)
+    {
+        var maxPage = Data.Total / _pageSize - 1;
+
+        _pageIndex = btnType switch
+        {
+            "last" => maxPage,
+            "previous" => _pageIndex - 1 < 0 ? 0 : _pageIndex - 1,
+            "next" => _pageIndex + 1 > maxPage ? maxPage : _pageIndex + 1,
+            "refresh" => _pageIndex,
+            _ => _firstRender ? InitPage : 0
+        };
+
+        _firstRender = false;
+
+        return OnArgsChange(new PagingOffsetArgs
+        {
+            PageIndex = _pageIndex,
+            PageSize = _pageSize
+        });
+    }
+}

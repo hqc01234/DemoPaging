@@ -1,13 +1,15 @@
 ﻿@page "/"
 
-@using DemoPaging.DBContext
-@using DemoPaging.Entities
-@using Microsoft.EntityFrameworkCore
+<h6 class="mb-4 text-primary font-weight-bold">Click between "First page" and "Last page" and compare execution time</h6>
 
-<Table></Table>
+<div class="row">
+    <div class="col-6">
+        <h4>Paging offset (orderby + skip + take)</h4>
+        <PagingOffsetTable></PagingOffsetTable>
+    </div>
 
-@code {
-    [Inject]
-    protected DemoDbContext DbContext { get; set; }
-
-}
+    <div class="col-6">
+        <h4>Paging offset optimized</h4>
+        <PagingOffsetOptimizedTable></PagingOffsetOptimizedTable>
+    </div>
+</div>

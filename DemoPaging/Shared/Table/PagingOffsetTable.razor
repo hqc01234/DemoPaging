@@ -1,0 +1,39 @@
+﻿@inherits OwningComponentBase<ItemService>
+
+@namespace DemoPaging.Shared
+
+<TablePagingOffset Data="PagingOffsetData" Loading="IsPagingOffsetLoading" OnArgsChange="OnTableArgsChange" ExecTime="@ExecTime"></TablePagingOffset>
+
+@code {
+    private PagingOffsetData PagingOffsetData { get; set; }
+
+    private bool IsPagingOffsetLoading { get; set; }
+
+    private string ExecTime { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service.ItemsOffsetPaging.Subscribe(data =>
+        {
+            PagingOffsetData = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ItemsOffsetPagingLoading.Subscribe(data =>
+        {
+            IsPagingOffsetLoading = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ExecTime.Skip(1).Subscribe(data =>
+        {
+            ExecTime = data;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    public Task OnTableArgsChange(PagingOffsetArgs pagingOffsetArgs)
+    {
+        return Service.GetItemsOffsetPaging(pagingOffsetArgs);
+    }
+}

@@ -1,0 +1,51 @@
+﻿@inherits OwningComponentBase<ItemService>
+
+@namespace DemoPaging.Shared
+
+<TablePagingCurrsor Data="PagingCursorData"
+                    Loading="ItemsCursorPagingLoading"
+                    NextPage="PagingCursorData.NextPage"
+                    PreviousPage="PagingCursorData.PreviousPage"
+                    OnArgsChange="OnTableArgsChange"
+                    OnDelete="OnDelete"
+                    ExecTime="@ExecTime">
+</TablePagingCurrsor>
+
+@code {
+    private PagingCursorData PagingCursorData { get; set; }
+
+    private bool ItemsCursorPagingLoading { get; set; }
+
+    private string ExecTime { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service.ItemsCursorPaging.Subscribe(data =>
+        {
+            PagingCursorData = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ItemsCursorPagingLoading.Subscribe(data =>
+        {
+            ItemsCursorPagingLoading = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ExecTime.Skip(1).Subscribe(data =>
+        {
+            ExecTime = data;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    public Task OnTableArgsChange(PagingCursorArgs args)
+    {
+        return Service.GetItemsCursorPaging(args);
+    }
+
+    public Task OnDelete(PagingCursorArgs args)
+    {
+        return Service.Delete(args);
+    }
+}

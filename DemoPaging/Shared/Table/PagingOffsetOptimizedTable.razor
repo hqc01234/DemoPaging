@@ -1,0 +1,51 @@
+﻿@inherits OwningComponentBase<ItemService>
+
+@namespace DemoPaging.Shared
+
+<TablePagingOffset Data="PagingOffsetOptData" 
+                   Loading="IsPagingOffsetOptLoading" 
+                   OnArgsChange="OnTableArgsChange" 
+                   ExecTime="@ExecTime"
+                   InitPage="@InitPage"
+                   DisableBtn="@DisableBtn">
+</TablePagingOffset>
+
+@code {
+    [Parameter]
+    public int InitPage { get; set; }
+
+    [Parameter]
+    public bool DisableBtn { get; set; }
+
+    private PagingOffsetData PagingOffsetOptData { get; set; }
+
+    private bool IsPagingOffsetOptLoading { get; set; }
+
+    private string ExecTime { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Service.ItemsOffsetPagingOptimized.Subscribe(data =>
+        {
+            PagingOffsetOptData = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ItemsOffsetPagingOptLoading.Subscribe(data =>
+        {
+            IsPagingOffsetOptLoading = data;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Service.ExecTime.Skip(1).Subscribe(data =>
+        {
+            ExecTime = data;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    public Task OnTableArgsChange(PagingOffsetArgs pagingOffsetArgs)
+    {
+        return Service.GetItemsOffsetPagingOptimized(pagingOffsetArgs);
+    }
+}

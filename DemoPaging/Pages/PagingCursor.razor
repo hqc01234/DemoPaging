@@ -1,0 +1,22 @@
+﻿@page "/paging-cursor"
+
+<div class="row">
+    <div class="col-12">
+        <h6 class="mb-4 text-primary font-weight-bold">1. Click "Next" on the 1st table</h6>
+        <h6 class="mb-4 text-primary font-weight-bold">2. Click "Delete" to delete record on previous page</h6>
+        <h6 class="mb-4 text-primary font-weight-bold">3. Click "Refresh" on both tables</h6>
+        <h6 class="mb-4 text-primary font-weight-bold">4. Notice the first item in both tables</h6>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-6">
+        <h4>Paging cursor</h4>
+        <PagingCursorTable></PagingCursorTable>
+    </div>
+
+    <div class="col-6">
+        <h4>Paging offset optimized</h4>
+        <PagingOffsetOptimizedTable InitPage="1" DisableBtn="true"></PagingOffsetOptimizedTable>
+    </div>
+</div>

@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DemoPaging.Migrations
 {
     [DbContext(typeof(DemoDbContext))]
-    [Migration("20200326095153_init")]
+    [Migration("20200328082929_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -37,6 +37,8 @@ namespace DemoPaging.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CreateDate");
 
                     b.ToTable("Items");
                 });
